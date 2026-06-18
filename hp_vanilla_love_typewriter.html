@@ -1,0 +1,258 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+#stage{
+  width:100%;min-height:560px;
+  background:#0d0010;
+  border-radius:14px;
+  position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  font-family:'Georgia',serif;
+}
+#bg-stars{position:absolute;inset:0;pointer-events:none;z-index:0}
+#main-btn{
+  z-index:10;
+  background:#2d0040;
+  border:2px solid #c084fc;
+  border-radius:50px;
+  padding:18px 56px;
+  font-size:20px;
+  font-weight:500;
+  color:#f0abfc;
+  cursor:pointer;
+  letter-spacing:2px;
+  font-family:'Georgia',serif;
+  transition:transform 0.15s,border-color 0.15s;
+  text-shadow:0 0 12px #c084fc88;
+}
+#main-btn:hover{transform:scale(1.07);border-color:#f0abfc;}
+#main-btn:active{transform:scale(0.96);}
+#hundred-btn{
+  display:none;
+  z-index:10;
+  background:#1a0028;
+  border:2px solid #f9a8d4;
+  border-radius:50px;
+  padding:16px 52px;
+  font-size:26px;
+  font-weight:500;
+  color:#fce7f3;
+  cursor:pointer;
+  letter-spacing:3px;
+  font-family:'Georgia',serif;
+  transition:transform 0.15s,border-color 0.15s;
+  text-shadow:0 0 16px #f9a8d4aa;
+  animation:pulseglow 1.4s infinite alternate;
+}
+#hundred-btn:hover{transform:scale(1.09);}
+@keyframes pulseglow{
+  from{box-shadow:0 0 12px #c084fc44;}
+  to{box-shadow:0 0 32px #f9a8d4cc,0 0 64px #c084fc66;}
+}
+#typewriter-area{
+  display:none;
+  z-index:10;
+  width:92%;
+  max-height:420px;
+  overflow-y:auto;
+  padding:20px 24px;
+  background:#0d0010ee;
+  border:1px solid #7c3aed44;
+  border-radius:10px;
+  font-family:'Courier New',monospace;
+  font-size:15px;
+  line-height:1.9;
+  color:#e9d5ff;
+  scrollbar-width:thin;
+  scrollbar-color:#7c3aed #0d0010;
+}
+#typewriter-area .ln{display:block;opacity:0;animation:fadein 0.01s forwards;}
+@keyframes fadein{to{opacity:1}}
+.msg-pop{
+  position:absolute;
+  pointer-events:none;
+  border-radius:22px;
+  padding:7px 18px;
+  font-family:'Georgia',serif;
+  font-weight:500;
+  white-space:nowrap;
+  z-index:20;
+  animation:riseUp linear forwards;
+}
+@keyframes riseUp{
+  0%{opacity:0;transform:translateY(0) scale(0.7) rotate(var(--rot));}
+  8%{opacity:1;transform:translateY(-14px) scale(1.05) rotate(var(--rot));}
+  85%{opacity:1;}
+  100%{opacity:0;transform:translateY(var(--rise)) scale(1) rotate(var(--rot));}
+}
+.sparklet{
+  position:absolute;pointer-events:none;border-radius:50%;
+  animation:sparkOut 0.9s forwards;
+}
+@keyframes sparkOut{
+  0%{opacity:1;transform:scale(1) translate(0,0);}
+  100%{opacity:0;transform:scale(0) translate(var(--tx),var(--ty));}
+}
+.hp-star{
+  position:absolute;pointer-events:none;
+  animation:twink ease-in-out infinite alternate;
+  color:#d8b4fe;
+}
+@keyframes twink{from{opacity:0.15;transform:scale(0.7);}to{opacity:0.9;transform:scale(1.3);}}
+#caret{display:inline-block;width:2px;height:16px;background:#c084fc;vertical-align:middle;animation:blink 0.7s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+</style>
+
+<h2 class="sr-only" style="position:absolute;left:-9999px">Harry Potter themed I love you Vanilla interactive widget</h2>
+
+<div id="stage">
+  <div id="bg-stars"></div>
+  <button id="main-btn" onclick="startShow()">Lumos Amoris</button>
+  <button id="hundred-btn" onclick="startTypewriter()">100</button>
+  <div id="typewriter-area"></div>
+</div>
+
+<script>
+const stage = document.getElementById('stage');
+const mainBtn = document.getElementById('main-btn');
+const hundredBtn = document.getElementById('hundred-btn');
+const twArea = document.getElementById('typewriter-area');
+const bgStars = document.getElementById('bg-stars');
+
+const msgs = [
+  {t:"I Love You Vanillaa",l:"English",bg:"#4c1d95",c:"#ede9fe"},
+  {t:"मैं तुमसे प्यार करता हूँ",l:"Hindi",bg:"#6b21a8",c:"#fae8ff"},
+  {t:"मी तुझ्यावर प्रेम करतो",l:"Marathi",bg:"#701a75",c:"#fdf4ff"},
+  {t:"ഞാൻ നിന്നെ സ്നേഹിക്കുന്നു",l:"Malayalam",bg:"#831843",c:"#fce7f3"},
+  {t:"Je t'aime, Vanilla",l:"French",bg:"#5b21b6",c:"#f5f3ff"},
+  {t:"Ti amo, Vanilla",l:"Italian",bg:"#7e22ce",c:"#fae8ff"},
+  {t:"Te amo, Vanilla",l:"Spanish",bg:"#86198f",c:"#fdf4ff"},
+  {t:"Ich liebe dich",l:"German",bg:"#4a044e",c:"#fdf4ff"},
+  {t:"Я тебя люблю",l:"Russian",bg:"#581c87",c:"#ede9fe"},
+  {t:"あなたが大好き",l:"Japanese",bg:"#9d174d",c:"#fce7f3"},
+  {t:"我爱你，Vanilla",l:"Chinese",bg:"#6d28d9",c:"#ede9fe"},
+  {t:"사랑해요 바닐라",l:"Korean",bg:"#7c3aed",c:"#f5f3ff"},
+  {t:"Aşkım Vanilla",l:"Turkish",bg:"#a21caf",c:"#fdf4ff"},
+  {t:"أحبك يا فانيلا",l:"Arabic",bg:"#4c1d95",c:"#ede9fe"},
+  {t:"Mahal kita",l:"Filipino",bg:"#be185d",c:"#fce7f3"},
+  {t:"Tôi yêu bạn",l:"Vietnamese",bg:"#7e22ce",c:"#fae8ff"},
+  {t:"Σ' αγαπώ",l:"Greek",bg:"#5b21b6",c:"#f5f3ff"},
+  {t:"Nakupenda",l:"Swahili",bg:"#831843",c:"#fce7f3"},
+  {t:"Ik hou van je",l:"Dutch",bg:"#6b21a8",c:"#fae8ff"},
+  {t:"Eu te amo",l:"Portuguese",bg:"#701a75",c:"#fdf4ff"},
+];
+
+function rnd(a,b){return a+Math.random()*(b-a);}
+
+function makeStars(){
+  for(let i=0;i<40;i++){
+    const s=document.createElement('div');
+    s.className='hp-star';
+    s.textContent=['*','·','✦','✧','⋆','★'][Math.floor(Math.random()*6)];
+    s.style.cssText=`left:${rnd(1,98)}%;top:${rnd(2,98)}%;font-size:${rnd(9,18)}px;animation-delay:${rnd(0,3)}s;animation-duration:${rnd(1.5,4)}s;`;
+    bgStars.appendChild(s);
+  }
+}
+makeStars();
+
+function burst(el){
+  const r=el.getBoundingClientRect();
+  const sr=stage.getBoundingClientRect();
+  const cx=r.left-sr.left+r.width/2;
+  const cy=r.top-sr.top+r.height/2;
+  const cols=['#c084fc','#f0abfc','#e879f9','#fbbf24','#f9a8d4','#a855f7','#ddd6fe','#fbcfe8'];
+  for(let i=0;i<28;i++){
+    const p=document.createElement('div');
+    p.className='sparklet';
+    const sz=rnd(5,15);
+    p.style.cssText=`width:${sz}px;height:${sz}px;background:${cols[Math.floor(Math.random()*cols.length)]};left:${cx}px;top:${cy}px;animation-duration:${rnd(0.5,1.1)}s;`;
+    const ang=rnd(0,360);const dist=rnd(40,110);
+    p.style.setProperty('--tx',Math.cos(ang*Math.PI/180)*dist+'px');
+    p.style.setProperty('--ty',Math.sin(ang*Math.PI/180)*dist+'px');
+    stage.appendChild(p);
+    setTimeout(()=>p.remove(),1200);
+  }
+}
+
+let popInterval=null;
+let hundredTimer=null;
+let popCount=0;
+
+function popMsg(){
+  const m=msgs[Math.floor(Math.random()*msgs.length)];
+  const el=document.createElement('div');
+  el.className='msg-pop';
+  el.textContent=m.t;
+  el.style.background=m.bg;
+  el.style.color=m.c;
+  el.style.fontSize=rnd(13,22)+'px';
+  const xp=rnd(3,72);
+  el.style.left=xp+'%';
+  el.style.bottom='0px';
+  const rise=-(rnd(380,560))+'px';
+  el.style.setProperty('--rise',rise);
+  el.style.setProperty('--rot',rnd(-12,12)+'deg');
+  const dur=rnd(3.0,5.0);
+  el.style.animationDuration=dur+'s';
+  el.style.border=`1px solid ${m.c}44`;
+  stage.appendChild(el);
+  setTimeout(()=>el.remove(),dur*1000+100);
+}
+
+function startShow(){
+  burst(mainBtn);
+  mainBtn.style.display='none';
+  popCount=0;
+  popMsg();
+  popInterval=setInterval(()=>{
+    const n=Math.floor(rnd(1,4));
+    for(let i=0;i<n;i++) setTimeout(popMsg,i*200);
+    popCount+=n;
+  },700);
+  hundredTimer=setTimeout(()=>{
+    hundredBtn.style.display='block';
+    hundredBtn.style.animation='pulseglow 1.4s infinite alternate';
+  },10000);
+}
+
+function startTypewriter(){
+  clearInterval(popInterval);
+  clearTimeout(hundredTimer);
+  document.querySelectorAll('.msg-pop,.sparklet').forEach(e=>e.remove());
+  hundredBtn.style.display='none';
+  twArea.style.display='block';
+  twArea.innerHTML='';
+
+  const lines=[];
+  lines.push('<span style="color:#a855f7">for</span> x <span style="color:#a855f7">in</span> <span style="color:#f0abfc">range</span>(<span style="color:#fbbf24">100</span>):');
+  for(let i=0;i<100;i++){
+    lines.push(`  <span style="color:#f0abfc">print</span>(<span style="color:#86efac">'I LOVE YOU VANILLAA'</span>) <span style="color:#6b7280"># ${i}</span>`);
+  }
+
+  let li=0;
+  function typeLine(){
+    if(li>=lines.length){
+      const cur=document.getElementById('tw-caret');
+      if(cur)cur.remove();
+      return;
+    }
+    const span=document.createElement('span');
+    span.className='ln';
+    span.innerHTML=lines[li]+(li===0?'<br>':'<br>');
+    span.style.animationDelay='0s';
+    twArea.appendChild(span);
+    const cur=document.getElementById('tw-caret');
+    if(cur)cur.remove();
+    const caret=document.createElement('span');
+    caret.id='tw-caret';
+    caret.id='caret';
+    caret.innerHTML='<span id="caret"></span>';
+    twArea.appendChild(caret);
+    twArea.scrollTop=twArea.scrollHeight;
+    li++;
+    setTimeout(typeLine, li===1?180:55);
+  }
+  typeLine();
+}
+</script>
